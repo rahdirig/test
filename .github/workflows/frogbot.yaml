@@ -1,0 +1,11 @@
+- params:
+    git:
+      repoName: test
+      branches:
+        - main
+    scan:
+      includeAllVulnerabilities: true
+      projects:
+        - workingDirs:
+            - "."
+          pipRequirementsFile: "requirements.txt"
