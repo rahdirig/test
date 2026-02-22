@@ -15,7 +15,7 @@ permissions:
 
 env:
   BUILD_NAME: "jfrog-frogbot-repro"
-  BUILD_NUMBER: "\${{ github.run_number }}"
+  BUILD_NUMBER: "${{ github.run_number }}"
 
 jobs:
   build-scan:
