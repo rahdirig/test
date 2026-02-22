@@ -15,7 +15,9 @@ permissions:
 
 env:
   BUILD_NAME: "jfrog-frogbot-repro"
-  BUILD_NUMBER: "${{ github.run_number }}"
+  BUILD_NUMBER: ${{ github.run_number }}
+  # You can store your JF_URL as a GitHub Secret or Variable
+  JF_URL: ${{ secrets.JF_URL }}
 
 jobs:
   build-scan:
@@ -33,7 +35,7 @@ jobs:
       - name: Setup JFrog CLI (OIDC)
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: \${{ vars.JF_URL }}
+          JF_URL: ${{ env.JF_URL }}
         with:
           oidc-provider-name: kamalkn24/test@github
 
@@ -44,8 +46,8 @@ jobs:
       - name: Enable FrogBot (OIDC)
         uses: jfrog/frogbot@v2
         env:
-          JF_URL: https://hts2.jfrog.io
-          JF_GIT_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          JF_URL: ${{ env.JF_URL }}
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JFROG_CLI_LOG_LEVEL: "DEBUG"
         with:
           oidc-provider-name: kamalkn24/test@github
@@ -53,32 +55,29 @@ jobs:
       - name: Install Python Dependencies
         run: |
           jf pip install --upgrade pip
-          jf pip install -r requirements.txt \\
-            --build-name \$BUILD_NAME \\
-            --build-number \$BUILD_NUMBER
+          jf pip install -r requirements.txt \
+            --build-name $BUILD_NAME \
+            --build-number $BUILD_NUMBER
 
       - name: Debug Resolved Dependencies
-        run: |
-          pip freeze
+        run: pip freeze
 
       - name: Build Package
         run: python -m build
 
       - name: Publish Build Info
         run: |
-          jf rt bce \$BUILD_NAME \$BUILD_NUMBER
-          jf rt upload "dist/*" "sws-jf-example-python-local" \\
-            --build-name \$BUILD_NAME \\
-            --build-number \$BUILD_NUMBER
-          jf rt bp \$BUILD_NAME \$BUILD_NUMBER
+          jf rt bce $BUILD_NAME $BUILD_NUMBER
+          jf rt upload "dist/*" "sws-jf-example-python-local" \
+            --build-name $BUILD_NAME \
+            --build-number $BUILD_NUMBER
+          jf rt bp $BUILD_NAME $BUILD_NUMBER
 
       - name: Scan Published Build
-        run: |
-          jf build-scan --format=sarif \$BUILD_NAME \$BUILD_NUMBER
+        run: jf build-scan --format=sarif $BUILD_NAME $BUILD_NUMBER
 
       - name: Audit Workspace Dependencies
-        run: |
-          jf audit --format=sarif > audit-results.sarif
+        run: jf audit --format=sarif > audit-results.sarif
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
