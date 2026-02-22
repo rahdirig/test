@@ -16,7 +16,7 @@ permissions:
 env:
   BUILD_NAME: "jfrog-frogbot-repro"
   BUILD_NUMBER: ${{ github.run_number }}
-  # You can store your JF_URL as a GitHub Secret or Variable
+  # Ensure you have this secret set in your repo
   JF_URL: ${{ secrets.JF_URL }}
 
 jobs:
@@ -58,6 +58,9 @@ jobs:
           jf pip install -r requirements.txt \
             --build-name $BUILD_NAME \
             --build-number $BUILD_NUMBER
+
+      - name: Install build module
+        run: python -m pip install --upgrade build
 
       - name: Debug Resolved Dependencies
         run: pip freeze
