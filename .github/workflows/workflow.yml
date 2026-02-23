@@ -56,6 +56,7 @@ jobs:
           JF_URL: ${{ env.JF_URL }}
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JFROG_CLI_LOG_LEVEL: "DEBUG"
+          JF_USE_CONFIG_PROFILE: "true"
         with:
           oidc-provider-name: kamalkn24/test@github
 
