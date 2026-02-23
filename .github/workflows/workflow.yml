@@ -1,59 +1,60 @@
 name: "FrogBot Full Repo Scan"
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
-  security-events: write
+  id-token: write
+  contents: write
+  pull-requests: write
+  security-events: write
 
 env:
-  JF_URL: ${{ vars.JF_URL }}
+  JF_URL: ${{ vars.JF_URL }}
 
 jobs:
-  frogbot-scan:
-    runs-on: ubuntu-latest
+  frogbot-scan:
+    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
 
-      - name: Setup JFrog CLI (OIDC)
-        uses: jfrog/setup-jfrog-cli@v4
-        env:
-          JF_URL: ${{ env.JF_URL }}
-        with:
-          oidc-provider-name: kamalkn24/test@github
+      - name: Setup JFrog CLI (OIDC)
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ env.JF_URL }}
+        with:
+          oidc-provider-name: kamalkn24/test@github
 
-      - name: Verify JFrog Connection
-        run: jf rt ping
+      - name: Verify JFrog Connection
+        run: jf rt ping
 
-      - name: Run FrogBot Full Scan
-        uses: jfrog/frogbot@v2
-        env:
-          JF_URL: ${{ env.JF_URL }}
-          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JFROG_CLI_LOG_LEVEL: "DEBUG"
-        with:
-          oidc-provider-name: kamalkn24/test@github
+      - name: Run FrogBot Full Scan
+        uses: jfrog/frogbot@v2
+        env:
+          JF_URL: ${{ env.JF_URL }}
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JFROG_CLI_LOG_LEVEL: "DEBUG"
+        with:
+          oidc-provider-name: kamalkn24/test@github
 
-      - name: Run Audit (Full Workspace SCA)
-        run: jf audit --format=sarif > audit-results.sarif
+      - name: Run Audit (Full Workspace SCA)
+        run: jf audit --format=sarif > audit-results.sarif
 
-      - name: Verify SARIF Exists
-        run: ls -lah
+      - name: Verify SARIF Exists
+        run: ls -lah
 
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: audit-results.sarif
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: audit-results.sarif
+Message Kamal Kumar N
