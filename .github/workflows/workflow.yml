@@ -16,8 +16,9 @@ permissions:
 env:
   BUILD_NAME: "jfrog-frogbot-repro"
   BUILD_NUMBER: ${{ github.run_number }}
-  # Ensure you have this secret set in your repo
   JF_URL: ${{ secrets.JF_URL }}
+  # This prevents the CLI from nagging you about the update in every step
+  JFROG_CLI_AVOID_NEW_VERSION_WARNING: "TRUE"
 
 jobs:
   build-scan:
@@ -38,6 +39,10 @@ jobs:
           JF_URL: ${{ env.JF_URL }}
         with:
           oidc-provider-name: kamalkn24/test@github
+
+      - name: Set Default JFrog Server
+        # This fixes the "server ID must be set" error by activating the OIDC config
+        run: jf c use
 
       - name: Configure pip to use Artifactory Virtual Repo
         run: |
@@ -81,9 +86,11 @@ jobs:
         run: jf build-scan --format=sarif $BUILD_NAME $BUILD_NUMBER
 
       - name: Audit Workspace Dependencies
+        # Ensuring we capture the output correctly for the SARIF upload
         run: jf audit --format=sarif > audit-results.sarif
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
+        if: always() # Upload results even if previous steps found vulnerabilities
         with:
           sarif_file: audit-results.sarif
