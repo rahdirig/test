@@ -51,7 +51,7 @@ jobs:
             --build-number $BUILD_NUMBER
 
       - name: Enable FrogBot (OIDC)
-        uses: jfrog/frogbot@v2
+        uses: jfrog/frogbot@v2.29.4
         env:
           JF_URL: ${{ env.JF_URL }}
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
